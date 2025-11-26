@@ -4,10 +4,14 @@
 mkdir -p /config
 
 # Copy example config if no config exists
-if [ ! -f /app/config/CONFIG.yaml ]; then
-    echo "CONFIG.yaml not found; creating from CONFIG_EXAMPLE.yaml"
-    cp /app/CONFIG_EXAMPLE.yaml /config/CONFIG.yaml
+if [ ! -f "${CONFIG_PATH}" ]; then
+    echo "${CONFIG_PATH} not found; creating from CONFIG_EXAMPLE.yaml"
+    cp /app/CONFIG_EXAMPLE.yaml "${CONFIG_PATH}"
 fi
+
+# Print the contents
+echo "Contents of $CONFIG_PATH:"
+cat "$CONFIG_PATH"
 
 echo "===== Environment Variables ====="
 printenv
