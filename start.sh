@@ -13,8 +13,5 @@ echo "===== Environment Variables ====="
 printenv
 echo "================================="
 
-# Main loop
-while true; do
-    python -m soulbrainarr
-    sleep "${RUN_INTERVAL:-600}"
-done
+# Launch the application
+python -m soulbrainarr

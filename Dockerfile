@@ -14,6 +14,9 @@ COPY . .
 # Default interval (600 seconds)
 ENV RUN_INTERVAL=600
 
+# Default number of songs to download during each run
+ENV SONG_BATCH_SIZE=15
+
 # Ensure config folder exists (in case user forgets to mount one)
 RUN mkdir -p /app/config
 
