@@ -14,4 +14,4 @@ printenv
 echo "================================="
 
 # Launch the application
-python -m soulbrainarr
+python -u -m soulbrainarr
