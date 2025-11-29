@@ -14,7 +14,7 @@ def get_config_base_path() -> str:
     2. Current directory 'CONFIG.yaml'
     """
     path_to_return: str = "CONFIG.yaml"
-    env_path = os.environ.get("CONFIG_PATH")
+    env_path = os.getenv("CONFIG_PATH", "/config/CONFIG.yaml")
     if env_path and env_path.strip():
         path_to_return = env_path.strip()
 

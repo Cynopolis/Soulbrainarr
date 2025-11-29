@@ -15,7 +15,7 @@ if [ -f /app/VERSION ]; then
 else
     echo "VERSION file not found at /app/VERSION"
 fi
-echo "==================="
+echo "\n==================="
 
 echo "===== Environment Variables ====="
 printenv
