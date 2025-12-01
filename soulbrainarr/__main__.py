@@ -1,4 +1,6 @@
 import asyncio
+from time import sleep
+import os
 
 from soulbrainarr.song import Song
 
@@ -26,12 +28,19 @@ async def search_and_download_recommendations(recs: list[Song]):
     await asyncio.gather(*[search_and_download(rec) for rec in recs])
 
 
-if __name__ == "__main__":
-    # Get a recommendations list
-    number_recommendations: int = 10
-    print(f"Getting {number_recommendations} recommendations:")
+async def main(song_batch_size: int, song_rec_offset: int):
+    print("================================")
+
+    print(
+        f"Getting {song_batch_size} recommendations with offset {song_rec_offset}:")
     recommendations: list[Song] = get_recommendation_list(
-        CONFIG.LISTEN_BRAINZ.USERNAME, CONFIG.LISTEN_BRAINZ.EMAIL, number_recommendations=number_recommendations)
+        CONFIG.LISTEN_BRAINZ.USERNAME,
+        CONFIG.LISTEN_BRAINZ.EMAIL,
+        song_batch_size,
+        recommendation_offset=song_rec_offset
+    )
+
+    # List all of the recommendations in the logs
     for recommendation in recommendations:
         print(recommendation)
 
@@ -43,6 +52,21 @@ if __name__ == "__main__":
 
     if len(recommendations) > 0:
         print("Queueing Downloads")
-        asyncio.run(search_and_download_recommendations(recommendations))
+        await search_and_download_recommendations(recommendations)
     else:
         print("No Downloads to Queue.")
+    print("================================")
+
+
+async def looper():
+    run_interval_seconds: int = CONFIG.SOULBRAINARR.RUN_INTERVAL_MINUTES * 60
+    song_offset: int = 0
+    while True:
+        await main(CONFIG.SOULBRAINARR.SONG_BATCH_SIZE, song_offset)
+        song_offset += CONFIG.SOULBRAINARR.SONG_BATCH_SIZE
+        print(
+            f"Sleeping for {CONFIG.SOULBRAINARR.RUN_INTERVAL_MINUTES} minutes")
+        sleep(run_interval_seconds)
+
+if __name__ == "__main__":
+    asyncio.run(looper())

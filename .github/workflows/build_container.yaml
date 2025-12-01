@@ -2,7 +2,7 @@ name: Build Docker Image
 
 on:
   push:
-    branches: ["main", "get-it-working"]
+    branches: ["main"]
   workflow_dispatch:
 
 jobs:
@@ -43,7 +43,6 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          visibility: public
           tags: |
             ${{ env.IMAGE }}:latest
             ${{ env.IMAGE }}:${{ env.VERSION }}
