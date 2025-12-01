@@ -2,7 +2,7 @@ name: Build Docker Image
 
 on:
   push:
-    branches: ["main", "get-it-working"]
+    branches: ["main"]
   workflow_dispatch:
 
 jobs:
