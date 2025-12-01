@@ -59,7 +59,7 @@ def is_song_in_database(song: Song, database: ImportedSongsIndex) -> bool:
     return False
 
 
-def remove_already_downloaded_songs(recommendations: list[Song]) -> list[Song]:
+def skip_already_downloaded_songs(recommendations: list[Song]) -> list[Song]:
     if not CONFIG.BEETS.ENABLE_BEETS:
         return recommendations
 
