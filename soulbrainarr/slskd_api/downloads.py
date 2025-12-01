@@ -48,6 +48,7 @@ def is_download_in_progress(download: Transfer) -> bool:
     # If any file is incomplete return false
     for directory in download["directories"]:
         for file in directory["files"]:
+            # TODO: We should check file["state"] to handle errored downloads
             if file["percentComplete"] < 100:
                 return True
 
@@ -61,21 +62,21 @@ def are_downloads_in_progress(downloads: list[Transfer]) -> bool:
     return False
 
 
-async def attempt_downloads_and_wait_to_complete(search_responses: list[SearchResponseItem], timeout_minutes: float = 10) -> bool:
+async def wait_for_downloads_to_complete(timeout_minutes: float = 10) -> bool:
     slskd = get_slskd_client()
+
+    all_downloads_completed_before_timeout: bool = False
 
     # Clear all completed downloads
     slskd.transfers.remove_completed_downloads()
-
-    # Start all of the downloads
-    success: bool = attempt_downloads(search_responses)
 
     # monitor for any in-progress downloads and return when there are none
     start_monitoring_time = time()
     while time() - start_monitoring_time < timeout_minutes*60:
         # Break out of waiting if all downloads are complete
         if not are_downloads_in_progress(slskd.transfers.get_all_downloads()):
+            all_downloads_completed_before_timeout = False
             break
         await asyncio.sleep(5)
 
-    return success
+    return all_downloads_completed_before_timeout

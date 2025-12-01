@@ -6,7 +6,7 @@ from soulbrainarr.song import Song
 
 from .config_parser import get_config, CONFIG_DATA
 from .listen_brainz_api import get_recommendation_list
-from .slskd_api import search_slskd, attempt_downloads
+from .slskd_api import search_slskd, attempt_downloads, wait_for_downloads_to_complete
 from .file_check.song_checker import remove_already_downloaded_songs
 
 CONFIG: CONFIG_DATA = get_config()
@@ -31,6 +31,7 @@ async def search_and_download_recommendations(recs: list[Song]):
 async def main(song_batch_size: int, song_rec_offset: int):
     print("================================")
 
+    # Get recommendations from listen brainz
     print(
         f"Getting {song_batch_size} recommendations with offset {song_rec_offset}:")
     recommendations: list[Song] = get_recommendation_list(
@@ -44,17 +45,25 @@ async def main(song_batch_size: int, song_rec_offset: int):
     for recommendation in recommendations:
         print(recommendation)
 
+    # Skip any already downloaded songs
     if CONFIG.BEETS.ENABLE_BEETS:
         print("Skipping already downloaded songs")
         recommendations = remove_already_downloaded_songs(recommendations)
     else:
         print("Beets CONFIG disabled, skipping this step...")
 
+    # Download all of the songs in the recommendations list
     if len(recommendations) > 0:
         print("Queueing Downloads")
         await search_and_download_recommendations(recommendations)
     else:
         print("No Downloads to Queue.")
+
+    # Wait for the downloads to complete
+    await wait_for_downloads_to_complete()
+
+    # TODO: have beets auto import all songs in album mode and then anything left should be done in singleton mode
+    # TODO: Run  beet duplicates -d once importing is done in order to clean up any duplicates. Make sure that this step can be disabled in options
     print("================================")
 
 
