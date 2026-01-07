@@ -67,7 +67,7 @@ class CONFIG_DATA:
 
 def get_config() -> Optional[CONFIG_DATA]:
     try:
-        with open(get_config_base_path(), 'r') as file:
+        with open(get_config_base_path(), 'r', encoding='utf-8') as file:
             yaml_doc = yaml.safe_load(file)
     except FileNotFoundError:
         return None

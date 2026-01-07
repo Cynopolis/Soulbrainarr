@@ -5,8 +5,6 @@ from typing import Optional
 # from rapidfuzz import fuzz
 from rapidfuzz.distance import Levenshtein
 
-from slskd_api.apis._types import SearchResponseItem
-
 
 @dataclass
 class Song:
