@@ -58,11 +58,20 @@ class SOULBRAINARR_DATA:
 
 
 @dataclass
+class NAVIDROME_DATA:
+    NAVIDROME_PLAYLIST_PATH: str
+    NAVIDROME_MUSIC_PATH_PREFIX: str
+
+    NAVIDROME_KEY: str = "navidrome"
+
+
+@dataclass
 class CONFIG_DATA:
     SLSKD: SLSKD_CONFIG
     LISTEN_BRAINZ: LISTEN_BRAINZ_CONFIG
     BEETS: BEETS
     SOULBRAINARR: SOULBRAINARR_DATA
+    NAVIDROME: NAVIDROME_DATA
 
 
 def get_config() -> Optional[CONFIG_DATA]:
@@ -80,7 +89,9 @@ def get_config() -> Optional[CONFIG_DATA]:
                 **yaml_doc[LISTEN_BRAINZ_CONFIG.LISTEN_BRAINZ_KEY]),
             BEETS=BEETS(**yaml_doc[BEETS.BEETS_KEY]),
             SOULBRAINARR=SOULBRAINARR_DATA(
-                **yaml_doc[SOULBRAINARR_DATA.SOULBRAINARR_KEY])
+                **yaml_doc[SOULBRAINARR_DATA.SOULBRAINARR_KEY]),
+            NAVIDROME=NAVIDROME_DATA(
+                **yaml_doc[NAVIDROME_DATA.NAVIDROME_KEY])
         )
     except TypeError as e:
         print("Error Parsing Config", e)
