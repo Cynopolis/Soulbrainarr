@@ -21,7 +21,7 @@ class Song:
         return f"{self.song_title} by {self.artist}"
 
     def __eq__(self, other: Song) -> bool:
-        FUZZY_THRESHOLD_TITLE: float = 0.95
+        FUZZY_THRESHOLD_TITLE: float = 0.8
         FUZZY_THRESHOLD_ARTIST: float = 0.8
         FUZZY_THRESHOLD_ALBUM: float = 0.8
 

@@ -1,13 +1,14 @@
 import asyncio
 from time import sleep
-import os
 
 from soulbrainarr.song import Song
 
 from .config_parser import get_config, CONFIG_DATA
 from .listen_brainz_api import get_recommendation_list
-from .slskd_api import search_slskd, attempt_each_download
-from .file_check.song_checker import remove_already_downloaded_songs
+from .slskd_api import search_slskd, attempt_downloads, wait_for_downloads_to_complete
+from .beets_api.duplicate_tools import skip_already_downloaded_songs
+from .beets_api.import_tools import run_import, run_deduplicate
+from .beets_api.initialize_files import init_beets
 
 CONFIG: CONFIG_DATA = get_config()
 
@@ -17,10 +18,10 @@ async def search_and_download(rec: Song):
     print(f"Searching for: {search_term}")
     search_responses = await search_slskd(search_term)
 
-    if attempt_each_download(search_responses):
-        print(f"Download for {search_term} succeeded")
+    if attempt_downloads(search_responses):
+        print(f"Download for {search_term} queued succesfully")
     else:
-        print(f"Download for {search_term} failed")
+        print(f"Download for {search_term} failed to queue")
 
 
 async def search_and_download_recommendations(recs: list[Song]):
@@ -31,6 +32,7 @@ async def search_and_download_recommendations(recs: list[Song]):
 async def main(song_batch_size: int, song_rec_offset: int):
     print("================================")
 
+    # Get recommendations from listen brainz
     print(
         f"Getting {song_batch_size} recommendations with offset {song_rec_offset}:")
     recommendations: list[Song] = get_recommendation_list(
@@ -44,21 +46,34 @@ async def main(song_batch_size: int, song_rec_offset: int):
     for recommendation in recommendations:
         print(recommendation)
 
-    if CONFIG.BEETS.ENABLE_BEETS:
-        print("Skipping already downloaded songs")
-        recommendations = remove_already_downloaded_songs(recommendations)
-    else:
-        print("Beets CONFIG disabled, skipping this step...")
+    # Skip any already downloaded songs
+    print("Skipping already downloaded songs")
+    recommendations = skip_already_downloaded_songs(recommendations)
 
+    # Download all of the songs in the recommendations list
     if len(recommendations) > 0:
         print("Queueing Downloads")
         await search_and_download_recommendations(recommendations)
     else:
         print("No Downloads to Queue.")
+
+    # Wait for the downloads to complete
+    print("Waiting for all downloads to complete")
+    await wait_for_downloads_to_complete()
+
+    print("Importing downloaded songs into beets")
+    run_import(CONFIG.SLSKD.SLSKD_DOWNLOADS)
+
+    if CONFIG.BEETS.AUTO_REMOVE_DUPLICATES:
+        # Run beet duplicates -d once importing is done in order to clean up any duplicates
+        print("Deduplicating is enabled, removing duplicates.")
+        run_deduplicate()
     print("================================")
 
 
 async def looper():
+    # Make sure beets will be initialized correctly
+    init_beets()
     run_interval_seconds: int = CONFIG.SOULBRAINARR.RUN_INTERVAL_MINUTES * 60
     song_offset: int = 0
     while True:
