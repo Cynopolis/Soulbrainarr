@@ -103,12 +103,12 @@ def run_import(folder: str) -> dict:
                 "stdout": out,
                 "stderr": err,
             }
+            print(err)
         else:
             result["singleton_results"][f] = {
                 "stdout": "",
                 "stderr": "File not found",
             }
-    print(err)
     return result
 
 

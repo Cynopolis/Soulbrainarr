@@ -1,4 +1,4 @@
-from time import time
+from typing import Optional
 
 from beets.library import Library
 
@@ -8,7 +8,7 @@ from soulbrainarr.song import Song
 CONFIG: CONFIG_DATA = get_config()
 
 
-class ImportedSongsIndex:
+class BeetsSongDatabase:
     def __init__(self, lib_path: str):
         self.songs: list[Song] = []
         self.title_artist_index: dict[tuple[str, str], Song] = {}
@@ -33,47 +33,44 @@ class ImportedSongsIndex:
             self.title_list.append(song.song_title)
         print("Succesfully loaded beets library")
 
-    # -----------------------------
-    # Exact lookup
-    # -----------------------------
-    def has_song_exact(self, song: Song) -> bool:
+    def find_song(self, song: Song) -> Optional[Song]:
+        matched_song = self.find_exact_song(song)
+        if matched_song is None:
+            matched_song = self.find_fuzzy_song(song)
+
+        return matched_song
+
+    def find_exact_song(self, song: Song) -> Optional[Song]:
         key = (song.song_title.lower(), song.artist.lower())
         has_song: bool = key in self.title_artist_index
         if has_song:
             print(f"Exact match found for song {song}")
-        return has_song
-# -----------------------------
-# Remove already downloaded songs
-# -----------------------------
+            return self.title_artist_index[key]
+        return None
+
+    def find_fuzzy_song(self, song: Song) -> Optional[Song]:
+        for other_song in self.songs:
+            if song == other_song:
+                print(f"Fuzzy Match for {song} found with song {other_song}")
+                return other_song
+
+        return None
 
 
-def is_song_in_database(song: Song, database: ImportedSongsIndex) -> bool:
-    for other_song in database.songs:
-        if song == other_song:
-            print(f"Fuzzy Match for {song} found with song {other_song}")
-            return True
+def get_database() -> BeetsSongDatabase:
+    return BeetsSongDatabase(
+        CONFIG.BEETS.BEETS_DATABASE)
 
-    return False
+
+SONG_DATABASE: BeetsSongDatabase = get_database()
 
 
 def skip_already_downloaded_songs(recommendations: list[Song]) -> list[Song]:
-    database: ImportedSongsIndex = ImportedSongsIndex(
-        CONFIG.BEETS.BEETS_DATABASE)
-
     new_recs: list[Song] = []
-    enable_benchmarking: bool = False
 
     for rec in recommendations:
-        start_time = time()
-        has_song: bool = database.has_song_exact(rec)
-        if enable_benchmarking:
-            print(f"exact check: {time() - start_time}")
-        if not has_song:
-            start_time = time()
-            has_song = is_song_in_database(rec, database)
-            if enable_benchmarking:
-                print(f"fuzzy check: {time() - start_time}")
-            if not has_song:
-                new_recs.append(rec)
+        matched_song: Optional[Song] = SONG_DATABASE.find_song(rec)
+        if matched_song is not None:
+            new_recs.append(rec)
 
     return new_recs
