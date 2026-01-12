@@ -13,7 +13,7 @@ def make_playlist_file(playlist_name: str, songs: list[Song]) -> None:
     Make an m3u8 playlist file from a list of songs that you pass in
     '''
     CONFIG: CONFIG_DATA = get_config()
-    with open(os.path.join(CONFIG.NAVIDROME.NAVIDROME_MUSIC_PATH_PREFIX, f"{playlist_name}.m3u8"), 'w', encoding='utf-8') as file:
+    with open(os.path.join(CONFIG.NAVIDROME.NAVIDROME_PLAYLIST_PATH, f"{playlist_name}.m3u8"), 'w', encoding='utf-8') as file:
         file.write(f"{playlist_header}\n")
         for song in songs:
             # Some basic song info
@@ -21,11 +21,17 @@ def make_playlist_file(playlist_name: str, songs: list[Song]) -> None:
 
             # If the provided song doesn't have a filepath,
             # see if we can find a matchign song in our database with the file path
+            file_path = "No File Path Found"
             if song.beets_file_path is None:
-                matched_song = SONG_DATABASE.find_fuzzy_song(song)
+                matched_song = SONG_DATABASE.find_song(song)
                 if matched_song is not None:
-                    song = matched_song
+                    file_path = matched_song.beets_file_path
 
+            # clean up the file path
+            file_path = file_path.removeprefix("b'").removesuffix("'")
+            # Replace one prefix with another
+            file_path = file_path.replace(
+                CONFIG.BEETS.BEETS_IMPORTED, CONFIG.NAVIDROME.NAVIDROME_PLAYLIST_PATH)
             # Song path relative to where Navidrome will see it
             file.write(
-                f"{os.path.join(CONFIG.NAVIDROME.NAVIDROME_MUSIC_PATH_PREFIX, song.beets_file_path)}\n")
+                f"{file_path}\n")

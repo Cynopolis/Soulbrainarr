@@ -50,6 +50,8 @@ class BeetsSongDatabase:
 
     def find_fuzzy_song(self, song: Song) -> Optional[Song]:
         for other_song in self.songs:
+            if song.artist.lower() == other_song.artist.lower():
+                print("Match:", other_song)
             if song == other_song:
                 print(f"Fuzzy Match for {song} found with song {other_song}")
                 return other_song

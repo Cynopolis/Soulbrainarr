@@ -27,7 +27,7 @@ def run_beet_cmd(
         "beet",
         "-c", config.BEETS.BEETS_CONFIG,
         "-l", config.BEETS.BEETS_DATABASE,
-    ] + args + ["-q", "-y"]
+    ] + args
 
     proc = subprocess.Popen(
         cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
@@ -41,7 +41,7 @@ def bulk_import(folder: str) -> str:
     Runs a bulk beets import on the given folder.
     Returns the combined beets output (stdout + stderr).
     """
-    out, err = run_beet_cmd(["import", folder])
+    out, err = run_beet_cmd(["-q", "-y", "import", folder])
     return out + "\n" + err
 
 
@@ -66,7 +66,7 @@ def singleton_import(path: str) -> tuple[str, str]:
     Performs a singleton import on a single file.
     Returns (stdout, stderr).
     """
-    return run_beet_cmd(["import", "-s", path])
+    return run_beet_cmd(["import", "-s", "-q", path])
 
 
 def run_import(folder: str) -> dict:

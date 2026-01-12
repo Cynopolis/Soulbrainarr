@@ -45,6 +45,7 @@ class BEETS:
     BEETS_CONFIG: str
     BEETS_DATABASE: str
     BEETS_REQUIREMENTS: str
+    BEETS_INBOX: str
 
     BEETS_KEY: str = "beets"
 
@@ -60,7 +61,6 @@ class SOULBRAINARR_DATA:
 @dataclass
 class NAVIDROME_DATA:
     NAVIDROME_PLAYLIST_PATH: str
-    NAVIDROME_MUSIC_PATH_PREFIX: str
 
     NAVIDROME_KEY: str = "navidrome"
 
