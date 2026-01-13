@@ -20,7 +20,7 @@ def make_playlist_file(playlist_name: str, songs: list[Song]) -> None:
             file.write(f"#EXTINF:-1,{song.artist} - {song.song_title}\n")
 
             # If the provided song doesn't have a filepath,
-            # see if we can find a matchign song in our database with the file path
+            # see if we can find a matching song in our database with the file path
             file_path = "No File Path Found"
             if song.beets_file_path is None:
                 matched_song = SONG_DATABASE.find_song(song)
@@ -31,7 +31,7 @@ def make_playlist_file(playlist_name: str, songs: list[Song]) -> None:
             file_path = file_path.removeprefix("b'").removesuffix("'")
             # Replace one prefix with another
             file_path = file_path.replace(
-                CONFIG.BEETS.BEETS_IMPORTED, CONFIG.NAVIDROME.NAVIDROME_PLAYLIST_PATH)
+                CONFIG.BEETS.BEETS_IMPORTED, CONFIG.NAVIDROME.NAVIDROME_MUSIC_FOLDER_PATH)
             # Song path relative to where Navidrome will see it
             file.write(
                 f"{file_path}\n")

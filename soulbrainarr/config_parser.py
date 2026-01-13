@@ -61,6 +61,7 @@ class SOULBRAINARR_DATA:
 @dataclass
 class NAVIDROME_DATA:
     NAVIDROME_PLAYLIST_PATH: str
+    NAVIDROME_MUSIC_FOLDER_PATH: str
 
     NAVIDROME_KEY: str = "navidrome"
 

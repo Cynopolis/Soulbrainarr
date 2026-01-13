@@ -25,6 +25,12 @@ beets:
   # The path to a requirements txt file which contains all of the beets modules that need to be installed
   BEETS_REQUIREMENTS: "/mnt/beets/beets/requirements.txt"
 
+navidrome:
+  # The folder that playlist files should be stored in
+  NAVIDROME_PLAYLIST_PATH: "/mnt/Music/Playlists/"
+  # the folder that all music is stored in which navidrome can access
+  NAVIDROME_MUSIC_FOLDER_PATH: "/mnt/Music/"
+
 soulbrainarr:
   # How long to wait before running the script again
   RUN_INTERVAL_MINUTES: 5
