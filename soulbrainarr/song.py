@@ -5,8 +5,6 @@ from typing import Optional
 # from rapidfuzz import fuzz
 from rapidfuzz.distance import Levenshtein
 
-from slskd_api.apis._types import SearchResponseItem
-
 
 @dataclass
 class Song:
@@ -14,7 +12,7 @@ class Song:
     artist: str
     score: Optional[float] = None
     album: Optional[str] = None
-    beets_file_path: Optional[str] = None
+    beets_file_path: str = None
     mbid: Optional[str] = None
 
     def __str__(self) -> str:

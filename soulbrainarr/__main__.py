@@ -9,6 +9,7 @@ from .slskd_api import search_slskd, attempt_downloads, wait_for_downloads_to_co
 from .beets_api.duplicate_tools import skip_already_downloaded_songs
 from .beets_api.import_tools import run_import, run_deduplicate
 from .beets_api.initialize_files import init_beets
+from .playlist_maker import make_playlist_file
 
 CONFIG: CONFIG_DATA = get_config()
 
@@ -48,12 +49,12 @@ async def main(song_batch_size: int, song_rec_offset: int):
 
     # Skip any already downloaded songs
     print("Skipping already downloaded songs")
-    recommendations = skip_already_downloaded_songs(recommendations)
+    songs_to_download = skip_already_downloaded_songs(recommendations)
 
     # Download all of the songs in the recommendations list
-    if len(recommendations) > 0:
+    if len(songs_to_download) > 0:
         print("Queueing Downloads")
-        await search_and_download_recommendations(recommendations)
+        await search_and_download_recommendations(songs_to_download)
     else:
         print("No Downloads to Queue.")
 
@@ -68,6 +69,9 @@ async def main(song_batch_size: int, song_rec_offset: int):
         # Run beet duplicates -d once importing is done in order to clean up any duplicates
         print("Deduplicating is enabled, removing duplicates.")
         run_deduplicate()
+
+    print("Making playlist file")
+    make_playlist_file("Discover Weekly", recommendations)
     print("================================")
 
 

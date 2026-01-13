@@ -14,8 +14,8 @@ def get_config_base_path() -> str:
     2. Current directory 'CONFIG.yaml'
     """
     path_to_return: str = "CONFIG.yaml"
-    env_path = os.getenv("CONFIG_PATH", "/config/CONFIG.yaml")
-    if env_path and env_path.strip():
+    env_path = os.getenv("CONFIG_PATH", "no_path")
+    if env_path != "no_path":
         path_to_return = env_path.strip()
 
     return path_to_return
@@ -45,6 +45,7 @@ class BEETS:
     BEETS_CONFIG: str
     BEETS_DATABASE: str
     BEETS_REQUIREMENTS: str
+    BEETS_INBOX: str
 
     BEETS_KEY: str = "beets"
 
@@ -58,16 +59,25 @@ class SOULBRAINARR_DATA:
 
 
 @dataclass
+class NAVIDROME_DATA:
+    NAVIDROME_PLAYLIST_PATH: str
+    NAVIDROME_MUSIC_FOLDER_PATH: str
+
+    NAVIDROME_KEY: str = "navidrome"
+
+
+@dataclass
 class CONFIG_DATA:
     SLSKD: SLSKD_CONFIG
     LISTEN_BRAINZ: LISTEN_BRAINZ_CONFIG
     BEETS: BEETS
     SOULBRAINARR: SOULBRAINARR_DATA
+    NAVIDROME: NAVIDROME_DATA
 
 
 def get_config() -> Optional[CONFIG_DATA]:
     try:
-        with open(get_config_base_path(), 'r') as file:
+        with open(get_config_base_path(), 'r', encoding='utf-8') as file:
             yaml_doc = yaml.safe_load(file)
     except FileNotFoundError:
         return None
@@ -80,7 +90,9 @@ def get_config() -> Optional[CONFIG_DATA]:
                 **yaml_doc[LISTEN_BRAINZ_CONFIG.LISTEN_BRAINZ_KEY]),
             BEETS=BEETS(**yaml_doc[BEETS.BEETS_KEY]),
             SOULBRAINARR=SOULBRAINARR_DATA(
-                **yaml_doc[SOULBRAINARR_DATA.SOULBRAINARR_KEY])
+                **yaml_doc[SOULBRAINARR_DATA.SOULBRAINARR_KEY]),
+            NAVIDROME=NAVIDROME_DATA(
+                **yaml_doc[NAVIDROME_DATA.NAVIDROME_KEY])
         )
     except TypeError as e:
         print("Error Parsing Config", e)

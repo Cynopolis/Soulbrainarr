@@ -1,6 +1,6 @@
 astroid==4.0.2
 autopep8==2.3.2
-beets==2.5.1
+beets[info,fetchart,embedart,featintitle,lastgenre,missing,albumtypes,scrub,zero,mbsync,duplicates,convert,inline,edit]==2.5.1
 certifi==2025.11.12
 charset-normalizer==3.4.4
 confuse==2.1.0
