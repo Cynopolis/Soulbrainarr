@@ -14,8 +14,6 @@ listenbrainz:
   EMAIL: "example@gmail.com"
 
 beets:
-  # if you aren't using beets, keep this false and ignore the other settings in this section
-  AUTO_REMOVE_DUPLICATES: false
   # The path to your already imported beets music
   BEETS_IMPORTED: "/path/to/folder/with/imported/beets"
   # The path to your beets config.yaml file

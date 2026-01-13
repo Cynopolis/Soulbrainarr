@@ -6,12 +6,19 @@ from soulbrainarr.song import Song
 from .config_parser import get_config, CONFIG_DATA
 from .listen_brainz_api import get_recommendation_list
 from .slskd_api import search_slskd, attempt_downloads, wait_for_downloads_to_complete
-from .beets_api.duplicate_tools import skip_already_downloaded_songs
-from .beets_api.import_tools import run_import, run_deduplicate
-from .beets_api.initialize_files import init_beets
+from .beets_api import BEET_API
 from .playlist_maker import make_playlist_file
 
 CONFIG: CONFIG_DATA = get_config()
+
+
+def remove_preexisting_songs(songs: list[Song]):
+    new_songs: list[Song] = []
+    for song in songs:
+        if BEET_API.search_song(song) is None:
+            new_songs.append(song)
+
+    return new_songs
 
 
 async def search_and_download(rec: Song):
@@ -49,7 +56,7 @@ async def main(song_batch_size: int, song_rec_offset: int):
 
     # Skip any already downloaded songs
     print("Skipping already downloaded songs")
-    songs_to_download = skip_already_downloaded_songs(recommendations)
+    songs_to_download = remove_preexisting_songs(recommendations)
 
     # Download all of the songs in the recommendations list
     if len(songs_to_download) > 0:
@@ -63,12 +70,7 @@ async def main(song_batch_size: int, song_rec_offset: int):
     await wait_for_downloads_to_complete()
 
     print("Importing downloaded songs into beets")
-    run_import(CONFIG.SLSKD.SLSKD_DOWNLOADS)
-
-    if CONFIG.BEETS.AUTO_REMOVE_DUPLICATES:
-        # Run beet duplicates -d once importing is done in order to clean up any duplicates
-        print("Deduplicating is enabled, removing duplicates.")
-        run_deduplicate()
+    BEET_API.import_folder(CONFIG.SLSKD.SLSKD_DOWNLOADS)
 
     print("Making playlist file")
     make_playlist_file("Discover Weekly", recommendations)
@@ -77,7 +79,6 @@ async def main(song_batch_size: int, song_rec_offset: int):
 
 async def looper():
     # Make sure beets will be initialized correctly
-    init_beets()
     run_interval_seconds: int = CONFIG.SOULBRAINARR.RUN_INTERVAL_MINUTES * 60
     song_offset: int = 0
     while True:
